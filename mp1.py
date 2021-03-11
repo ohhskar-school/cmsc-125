@@ -25,7 +25,7 @@ class Resource:
             + " \ncurrent_timer: "
             + str(self._timer)
             + "\nactive: "
-            + str(self._active)
+            + str(self._is_active)
         )
 
     def id(self):
@@ -169,18 +169,19 @@ def countdown_resources(users: Users):
             user.use_resource()
             user.tick()
             user.print_status()
-        sleep(1)
 
         should_end: bool = True
 
         for user in users:
             if user.active_resource() is None:
-                sould_end = should_end and False
+                should_end = should_end and False
             if not should_end:
                 break
 
         if should_end:
             break
+
+        sleep(1)
 
 
 def main():

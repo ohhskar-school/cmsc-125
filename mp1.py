@@ -160,7 +160,7 @@ def assign_resource(resources: Resource, users: User):
                 print("[ assign_resource_loop ] resources: " + str(resources))
 
 
-def countdown_resources(users: Users):
+def countdown_resources(users: User):
     while True:
         for user in users:
             user.use_resource()
@@ -185,7 +185,7 @@ def main():
     resources: list[Resource] = [
         Resource(i + 1) for i in range(randint(1, MAX_NUMBERS))
     ]
-    users: Users = [User(i + 1) for i in range(randint(1, MAX_NUMBERS))]
+    users: User = [User(i + 1) for i in range(randint(1, MAX_NUMBERS))]
 
     print("[ main ] resources: " + str(len(resources)))
     print("[ main ] users: " + str(len(users)))

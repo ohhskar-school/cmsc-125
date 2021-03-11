@@ -5,9 +5,6 @@ from time import sleep
 MAX_NUMBERS: int = 7
 DEBUG: bool = False
 
-# Types
-Users = list[list[int]]
-
 
 class Resource:
     def __init__(self, id: int):

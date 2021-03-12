@@ -1,6 +1,6 @@
 from random import randint, randrange
 from time import sleep
-from typing import Optional
+from typing import Optional, List
 
 MAX_VAL: int = 3
 DEBUG: bool = True
@@ -56,12 +56,16 @@ class Process:
         ) + "\n"
 
 
+Resource = List[Process]
+Processes = List[Resource]
+
+
 class OS:
     def __init__(self):
         self._users_count: int = randint(1, MAX_VAL)
         self._resources_count: int = randint(1, MAX_VAL)
-        self._active_processes: list[Process] = []
-        self._processes: list[list[Process]] = [
+        self._active_processes: List[Process] = []
+        self._processes: List[List[Process]] = [
             [None for i in range(self._users_count + 1)]
             for i in range(self._resources_count)
         ]
@@ -106,14 +110,14 @@ class OS:
             self.print_processes()
 
         for user in self._users_index:
-            user_processes: list[Process] = []
+            user_processes: List[Process] = []
             for resource in self._processes:
                 if resource[user] is not None:
                     self.calculate_tte_in_resource(resource, user)
                     self.check_for_concurrency(user_processes, resource[user])
                     user_processes.append(resource[user])
 
-    def calculate_tte_in_resource(self, resource: list[Process], user: int):
+    def calculate_tte_in_resource(self, resource: List[Process], user: int):
         for i in range(user - 1, 0, -1):
             process = resource[i]
             if process is None:
@@ -130,7 +134,7 @@ class OS:
             print("[ calculate_tte_in_resource ] after calculate:\n")
             self.print_processes()
 
-    def check_for_concurrency(self, user_processes: list[Process], process: Process):
+    def check_for_concurrency(self, user_processes: List[Process], process: Process):
         if DEBUG:
             print("[ check_for_concurrency ] init")
             print("[ check_for_concurrency ] user_process: \n")

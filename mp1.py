@@ -1,11 +1,13 @@
 from random import randint, randrange
 from time import sleep
-from typing import Optional, List
+from typing import Optional, List, Tuple
 from os import system
+from math import modf
 
 MAX_VAL: int = 5
 DEBUG: bool = False
 DEBUG_DATA: bool = False
+MAX_CHAR_WIDTH: int = 24
 
 
 class Process:
@@ -17,6 +19,7 @@ class Process:
         self._resource: int = resource
         self._curr_time: int = randint(
             1, MAX_VAL) if curr_time is None else curr_time
+        self._init_time: int = self._curr_time
         self._time_to_start: int = 0
         self._time_to_end: int = self._curr_time
         self._is_active: bool = False
@@ -51,30 +54,45 @@ class Process:
         if self._is_done:
             return
 
-        if self._time_to_start == 0:
-            self._is_active = True
-        if self._curr_time == 0:
-            self._is_active = False
-            self._is_done = True
-
         if not self._is_active:
+            if self._time_to_start == 0:
+                self._is_active = True
             self._time_to_start -= 1
         else:
+            if self._curr_time == 0:
+                self._is_active = False
+                self._is_done = True
             self._curr_time -= 1
 
     def print_active_func(self):
-        return "|== ACTIVE ==|" if self._is_active else ""
+        if (self._curr_time == 0):
+            return "|== DONE ==|"
+        elif (self._is_active):
+            return "|== ACTIVE ==|"
+        else:
+            return ""
 
     def print_time_to_start(self):
         return "Time to Start: " + str(
-            self._time_to_start) if not self._is_active else ""
+            self._time_to_start + 1)  if not self._is_active else ""
+
+    def print_current_time(self):
+        dec: float
+        integer: float
+        (dec, integer) = modf((self._init_time - self._curr_time) /
+                              self._init_time * MAX_CHAR_WIDTH)
+
+        return "█" * int(integer) + "░" * (
+            MAX_CHAR_WIDTH - int(integer)) + "\n" + str(
+                self._init_time - self._curr_time) + "/" + str(
+                    self._init_time
+                ) + "\n" if self._is_active else "░" * MAX_CHAR_WIDTH + "\n"
 
     def __str__(self):
         return (self.print_active_func() + "\n[ process " +
                 str(self._resource) + ":" + str(self._user) + " ]" +
-                "\nUser:           " + str(self._user) + "\nCurrent Time:   " +
-                str(self._curr_time) + "\n" + self.print_time_to_start() +
-                "\n")
+                "\nUser: " + str(self._user) + "\n" +
+                self.print_current_time() + self.print_time_to_start() + "\n")
 
 
 Resource = List[Process]
@@ -97,17 +115,12 @@ class OS:
         self.calculate_estimated_time()
 
     def create_debug_processes(self):
-        self._users_count = 4
-        self._resources_count = 4
+        self._users_count = 3
+        self._resources_count = 1
         self._processes = [
-            [None, Process(1, 1, 3), None, None, None],
-            [None, Process(1, 2, 2),
-             Process(2, 3, 7), None, None],
-            [None,
-             Process(1, 3, 3),
-             Process(2, 3, 4),
-             Process(3, 3, 4), None],
-            [None, None, Process(2, 4, 6), None, None],
+            [None, Process(1, 1, 1),
+             Process(1, 2, 1),
+             Process(1, 3, 1)],
         ]
         self._users_index = [i for i in range(1, self._users_count + 1)]
 
@@ -236,18 +249,19 @@ class OS:
                 break
 
             seconds += 1
-            sleep(2)
+            sleep(1)
 
     def print_processes(self, processes: List[Process]):
         for index, resource in enumerate(processes, 1):
-            print("-" * 20 + "\n\n==| Resource " + str(index) + " |==\n")
+            print("-" * MAX_CHAR_WIDTH + "\n\n==| Resource " + str(index) +
+                  " |==\n")
             if len(resource) > 0:
                 for p in resource:
                     if p is not None:
                         print(p)
             else:
                 print("\nNo Processes in Queue\n")
-        print("-" * 20)
+        print("-" * MAX_CHAR_WIDTH)
 
     def processes(self):
         return self._processes

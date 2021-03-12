@@ -11,14 +11,10 @@ MAX_CHAR_WIDTH: int = 24
 
 
 class Process:
-    def __init__(self,
-                 user: int,
-                 resource: int,
-                 curr_time: Optional[int] = None):
+    def __init__(self, user: int, resource: int, curr_time: Optional[int] = None):
         self._user: int = user
         self._resource: int = resource
-        self._curr_time: int = randint(
-            1, MAX_VAL) if curr_time is None else curr_time
+        self._curr_time: int = randint(1, MAX_VAL) if curr_time is None else curr_time
         self._init_time: int = self._curr_time
         self._time_to_start: int = 0
         self._time_to_end: int = self._curr_time
@@ -65,34 +61,54 @@ class Process:
             self._curr_time -= 1
 
     def print_active_func(self):
-        if (self._curr_time == 0):
+        if self._curr_time == 0:
             return "|== DONE ==|"
-        elif (self._is_active):
+        elif self._is_active:
             return "|== ACTIVE ==|"
         else:
             return ""
 
     def print_time_to_start(self):
-        return "Time to Start: " + str(
-            self._time_to_start + 1)  if not self._is_active else ""
+        return (
+            "Time to Start: " + str(self._time_to_start + 1)
+            if not self._is_active
+            else ""
+        )
 
     def print_current_time(self):
         dec: float
         integer: float
-        (dec, integer) = modf((self._init_time - self._curr_time) /
-                              self._init_time * MAX_CHAR_WIDTH)
+        (dec, integer) = modf(
+            (self._init_time - self._curr_time) / self._init_time * MAX_CHAR_WIDTH
+        )
 
-        return "█" * int(integer) + "░" * (
-            MAX_CHAR_WIDTH - int(integer)) + "\n" + str(
-                self._init_time - self._curr_time) + "/" + str(
-                    self._init_time
-                ) + "\n" if self._is_active else "░" * MAX_CHAR_WIDTH + "\n"
+        return (
+            "█" * int(integer)
+            + "░" * (MAX_CHAR_WIDTH - int(integer))
+            + "\n"
+            + str(self._init_time - self._curr_time)
+            + "/"
+            + str(self._init_time)
+            + "\n"
+            if self._is_active
+            else "░" * MAX_CHAR_WIDTH + "\n"
+        )
 
     def __str__(self):
-        return (self.print_active_func() + "\n[ process " +
-                str(self._resource) + ":" + str(self._user) + " ]" +
-                "\nUser: " + str(self._user) + "\n" +
-                self.print_current_time() + self.print_time_to_start() + "\n")
+        return (
+            self.print_active_func()
+            + "\n[ process "
+            + str(self._resource)
+            + ":"
+            + str(self._user)
+            + " ]"
+            + "\nUser: "
+            + str(self._user)
+            + "\n"
+            + self.print_current_time()
+            + self.print_time_to_start()
+            + "\n"
+        )
 
 
 Resource = List[Process]
@@ -103,9 +119,10 @@ class OS:
     def __init__(self):
         self._users_count: int = randint(1, MAX_VAL)
         self._resources_count: int = randint(1, MAX_VAL)
-        self._processes: Processes = [[
-            None for i in range(self._users_count + 1)
-        ] for i in range(self._resources_count)]
+        self._processes: Processes = [
+            [None for i in range(self._users_count + 1)]
+            for i in range(self._resources_count)
+        ]
         self._users_index = [i for i in range(1, self._users_count + 1)]
 
         if DEBUG_DATA:
@@ -118,9 +135,7 @@ class OS:
         self._users_count = 3
         self._resources_count = 1
         self._processes = [
-            [None, Process(1, 1, 1),
-             Process(1, 2, 1),
-             Process(1, 3, 1)],
+            [None, Process(1, 1, 1), Process(1, 2, 1), Process(1, 3, 1)],
         ]
         self._users_index = [i for i in range(1, self._users_count + 1)]
 
@@ -130,11 +145,9 @@ class OS:
             users_index = self._users_index.copy()
 
             if DEBUG:
-                print("[ create_processes ] max_processes: " +
-                      str(max_processes))
+                print("[ create_processes ] max_processes: " + str(max_processes))
                 print("[ create_processes ] users_index: " + str(users_index))
-                print("[ create_processes ] len(resource): " +
-                      str(len(resource)))
+                print("[ create_processes ] len(resource): " + str(len(resource)))
 
             for j in range(max_processes):
                 user: int = users_index[randrange(0, len(users_index))]
@@ -159,8 +172,10 @@ class OS:
     def calculate_tts_in_resource(self, resource: Resource, user: int):
         if DEBUG:
             print("[ calculate_tts_in_resource ] user: " + str(user))
-            print("[ calculate_tts_in_resource ] resource: " +
-                  str(resource[user].resource()))
+            print(
+                "[ calculate_tts_in_resource ] resource: "
+                + str(resource[user].resource())
+            )
 
         for i in range(user - 1, 0, -1):
             process = resource[i]
@@ -173,12 +188,15 @@ class OS:
                 if DEBUG:
                     print(
                         "[ calculate_tts_in_resource ] process.time_to_end(): "
-                        + str(process.time_to_end()))
+                        + str(process.time_to_end())
+                    )
                     print(
                         "[ calculate_tts_in_resource ] resource[user].time_to_start(): "
-                        + str(resource[user].time_to_start()))
+                        + str(resource[user].time_to_start())
+                    )
                 resource[user].add_time_to_start(
-                    process.time_to_end() - resource[user].time_to_start())
+                    process.time_to_end() - resource[user].time_to_start()
+                )
                 break
 
         if DEBUG:
@@ -203,37 +221,47 @@ class OS:
                     print(outer_process)
                     print("[ check_for_concurrency ] inner_process: \n")
                     print(inner_process)
-                if outer_process.time_to_end() > inner_process.time_to_start(
-                ) and inner_process.time_to_end(
-                ) > outer_process.time_to_start():
+                if (
+                    outer_process.time_to_end() > inner_process.time_to_start()
+                    and inner_process.time_to_end() > outer_process.time_to_start()
+                ):
                     if DEBUG:
                         print(
-                            "[ check_for_concurrency ] if: " +
-                            str(outer_process.time_to_end() > inner_process.
-                                time_to_start() and inner_process.time_to_end(
-                                ) > outer_process.time_to_start()))
+                            "[ check_for_concurrency ] if: "
+                            + str(
+                                outer_process.time_to_end()
+                                > inner_process.time_to_start()
+                                and inner_process.time_to_end()
+                                > outer_process.time_to_start()
+                            )
+                        )
 
                     inner_process.add_time_to_start(
-                        outer_process.time_to_end() -
-                        inner_process.time_to_start())
+                        outer_process.time_to_end() - inner_process.time_to_start()
+                    )
 
     def run(self):
         seconds: int = 0
-        new_processes: Processes = [[
-            process for process in resource if process is not None
-        ] for resource in self._processes]
+        new_processes: Processes = [
+            [process for process in resource if process is not None]
+            for resource in self._processes
+        ]
         while True:
             for resources in new_processes:
                 for process in resources:
                     if process is not None:
                         process.tick()
-            new_processes[:] = [[
-                process for process in resource
-                if process is None or not process.is_done()
-            ] for resource in new_processes]
+            new_processes[:] = [
+                [
+                    process
+                    for process in resource
+                    if process is None or not process.is_done()
+                ]
+                for resource in new_processes
+            ]
 
             if not DEBUG:
-                system('clear')
+                system("clear")
             print("|== TIME: " + str(seconds) + "s ==|\n")
             self.print_processes(new_processes)
 
@@ -241,8 +269,7 @@ class OS:
             for resources in new_processes:
                 if len(resources) > 0:
                     if DEBUG:
-                        print("[ run ] len(resources)" +
-                              str(len(resources) > 0))
+                        print("[ run ] len(resources)" + str(len(resources) > 0))
                     should_end = False
 
             if should_end:
@@ -253,8 +280,7 @@ class OS:
 
     def print_processes(self, processes: List[Process]):
         for index, resource in enumerate(processes, 1):
-            print("-" * MAX_CHAR_WIDTH + "\n\n==| Resource " + str(index) +
-                  " |==\n")
+            print("-" * MAX_CHAR_WIDTH + "\n\n==| Resource " + str(index) + " |==\n")
             if len(resource) > 0:
                 for p in resource:
                     if p is not None:
@@ -267,8 +293,12 @@ class OS:
         return self._processes
 
     def __str__(self):
-        return ("Users: " + str(self._users_count) + "\nResources: " +
-                str(self._resources_count))
+        return (
+            "Users: "
+            + str(self._users_count)
+            + "\nResources: "
+            + str(self._resources_count)
+        )
 
 
 def main():

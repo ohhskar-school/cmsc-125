@@ -5,9 +5,6 @@ from typing import Optional
 MAX_VAL: int = 3
 DEBUG: bool = True
 
-Resource = list[Process]
-Processes = list[Resource]
-
 
 class Process:
     def __init__(self, user: int, resource: int, curr_time: Optional[int] = None):
@@ -57,6 +54,10 @@ class Process:
             + "\nTime to End:    "
             + str(self._time_to_end)
         ) + "\n"
+
+
+Resource = list[Process]
+Processes = list[Resource]
 
 
 class OS:

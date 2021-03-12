@@ -1,8 +1,9 @@
 from random import randint, randrange
 from time import sleep
-from typing import Optional, List, Tuple
+from typing import Optional, List
 from os import system
 from math import modf
+from termcolor import cprint
 
 MAX_VAL: int = 5
 DEBUG: bool = False
@@ -104,10 +105,9 @@ class Process:
             + " ]"
             + "\nUser: "
             + str(self._user)
-            + "\n"
+            + "\n\n"
             + self.print_current_time()
             + self.print_time_to_start()
-            + "\n"
         )
 
 
@@ -262,7 +262,13 @@ class OS:
 
             if not DEBUG:
                 system("clear")
-            print("|== TIME: " + str(seconds) + "s ==|\n")
+            
+            cprint("makOS version 11.11 (Big Ser)\n", attrs=["bold"])
+            print("Number of Users: " + str(self._users_count))
+            print("Number of Resources: " + str(self._resources_count) + "\n")
+            cprint("\n====== ", "yellow", end="")
+            print("TIME: " + str(seconds) + "s", end="")
+            cprint(" ======\n", "yellow")
             self.print_processes(new_processes)
 
             should_end: bool = True
@@ -280,14 +286,20 @@ class OS:
 
     def print_processes(self, processes: List[Process]):
         for index, resource in enumerate(processes, 1):
-            print("-" * MAX_CHAR_WIDTH + "\n\n==| Resource " + str(index) + " |==\n")
+            cprint("-" * MAX_CHAR_WIDTH + "\n", "grey")
+            cprint("=====| Resource " + str(index) + " |=====\n", "cyan")
             if len(resource) > 0:
                 for p in resource:
                     if p is not None:
-                        print(p)
+                        if p.curr_time() == 0:
+                            cprint(p, "green")
+                        elif p.is_active():
+                            print(p)
+                        else:
+                            cprint(p, attrs=["dark"])
             else:
-                print("\nNo Processes in Queue\n")
-        print("-" * MAX_CHAR_WIDTH)
+                cprint("\nNo Processes in Queue\n", "blue")
+        cprint("\n" + "-" * MAX_CHAR_WIDTH, "grey")
 
     def processes(self):
         return self._processes

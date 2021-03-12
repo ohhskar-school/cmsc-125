@@ -56,16 +56,12 @@ class Process:
         ) + "\n"
 
 
-Resource = list[Process]
-Processes = list[Resource]
-
-
 class OS:
     def __init__(self):
         self._users_count: int = randint(1, MAX_VAL)
         self._resources_count: int = randint(1, MAX_VAL)
         self._active_processes: list[Process] = []
-        self._processes: Processes = [
+        self._processes: list[list[Process]] = [
             [None for i in range(self._users_count + 1)]
             for i in range(self._resources_count)
         ]
@@ -117,7 +113,7 @@ class OS:
                     self.check_for_concurrency(user_processes, resource[user])
                     user_processes.append(resource[user])
 
-    def calculate_tte_in_resource(self, resource: Resource, user: int):
+    def calculate_tte_in_resource(self, resource: list[Process], user: int):
         for i in range(user - 1, 0, -1):
             process = resource[i]
             if process is None:

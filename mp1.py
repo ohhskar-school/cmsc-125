@@ -1,3 +1,7 @@
+# Machine Problem 1
+# Po, Justin Andre
+# Valles, Oscar Vian
+
 from random import randint, randrange
 from time import sleep
 from typing import Optional, List
@@ -268,7 +272,7 @@ class OS:
             print("Number of Users: ", end="")
             cprint(str(self._users_count), attrs=["bold"])
             print("Number of Resources: ", end="")
-            cprint(str(self._users_count)  + "\n", attrs=["bold"])
+            cprint(str(self._resources_count)  + "\n", attrs=["bold"])
             cprint("\n====== ", "yellow", end="")
             print("TIME: " + str(seconds) + "s", end="")
             cprint(" ======\n", "yellow")

@@ -5,7 +5,7 @@ from os import system
 from math import modf
 from termcolor import cprint
 
-MAX_VAL: int = 5
+MAX_VAL: int = 30
 DEBUG: bool = False
 DEBUG_DATA: bool = False
 MAX_CHAR_WIDTH: int = 24
@@ -108,6 +108,7 @@ class Process:
             + "\n\n"
             + self.print_current_time()
             + self.print_time_to_start()
+            + "\n"
         )
 
 
@@ -264,8 +265,10 @@ class OS:
                 system("clear")
             
             cprint("makOS version 11.11 (Big Ser)\n", attrs=["bold"])
-            print("Number of Users: " + str(self._users_count))
-            print("Number of Resources: " + str(self._resources_count) + "\n")
+            print("Number of Users: ", end="")
+            cprint(str(self._users_count), attrs=["bold"])
+            print("Number of Resources: ", end="")
+            cprint(str(self._users_count)  + "\n", attrs=["bold"])
             cprint("\n====== ", "yellow", end="")
             print("TIME: " + str(seconds) + "s", end="")
             cprint(" ======\n", "yellow")
@@ -287,7 +290,10 @@ class OS:
     def print_processes(self, processes: List[Process]):
         for index, resource in enumerate(processes, 1):
             cprint("-" * MAX_CHAR_WIDTH + "\n", "grey")
-            cprint("=====| Resource " + str(index) + " |=====\n", "cyan")
+            if index < 10:
+                cprint("=====| Resource " + str(index) + " |=====\n", "cyan")
+            else:
+                cprint("=====| Resource " + str(index) + " |====\n", "cyan")
             if len(resource) > 0:
                 for p in resource:
                     if p is not None:

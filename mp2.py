@@ -1,7 +1,7 @@
 # Machine Problem 2
 # Po, Justin Andre
 # Valles, Oscar Vian
-# 
+#
 # This machine problem was implement through pair programming
 
 from typing import List, Callable
@@ -83,9 +83,13 @@ class Gantt:
         self._avgTurnaround: int = avgTurnaround
 
     def print(self):
-        greatestLength = max(process.turnaround() - (0 if index == 0 else self._ganttProcesses[index-1].turnaround()) for index, process in enumerate(self._ganttProcesses))
+        greatestLength = max(
+            process.turnaround()
+            - (0 if index == 0 else self._ganttProcesses[index - 1].turnaround())
+            for index, process in enumerate(self._ganttProcesses)
+        )
         totalLength = self._ganttProcesses[-1].turnaround()
-        divisionFactor = greatestLength/totalLength * 0.75
+        divisionFactor = greatestLength / totalLength * 0.75
         prevLength = 0
         for index, process in enumerate(self._ganttProcesses):
             length = floor((process.turnaround() - prevLength) * divisionFactor)
@@ -131,7 +135,7 @@ def parse(filename: str) -> List[Process]:
 
     return processes
 
-    
+
 def simple(processes: List[Process], key: Callable) -> Gantt:
     newProcesses = deepcopy(processes)
     newProcesses.sort(key=key)
@@ -155,7 +159,7 @@ def simple(processes: List[Process], key: Callable) -> Gantt:
     avgTurnaround /= lenProcesses
 
     finished = deepcopy(newProcesses)
-    finished.sort(key = lambda x: x.id())
+    finished.sort(key=lambda x: x.id())
 
     return Gantt(newProcesses, finished, avgWaiting, avgTurnaround)
 

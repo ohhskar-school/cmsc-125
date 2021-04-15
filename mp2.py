@@ -25,7 +25,7 @@ class Process:
 
     def priority(self):
         return self._priority
-    
+
     def waiting(self):
         return self._waiting
 
@@ -48,14 +48,29 @@ class Process:
         self._waiting = waiting
 
     def __str__(self):
-        return str(self._id) + '\t\t' + str(self._arrival) + '\t\t' + str(
-            self._burst) + '\t\t' + str(self._priority) + '\t\t\t' + str(
-                self._waiting) + '\t\t\t' + str(self._turnaround)
+        return (
+            str(self._id)
+            + "\t\t"
+            + str(self._arrival)
+            + "\t\t"
+            + str(self._burst)
+            + "\t\t"
+            + str(self._priority)
+            + "\t\t\t"
+            + str(self._waiting)
+            + "\t\t\t"
+            + str(self._turnaround)
+        )
 
 
 class Gantt:
-    def __init__(self, ganttProcceses: List[Process], processes: List[Process],
-                 avgWaiting: int, avgTurnaround: int):
+    def __init__(
+        self,
+        ganttProcceses: List[Process],
+        processes: List[Process],
+        avgWaiting: int,
+        avgTurnaround: int,
+    ):
         self._processes: List[Process] = processes
         self._ganttProcesses = ganttProcceses
         self._avgWaiting: int = avgWaiting
@@ -76,7 +91,7 @@ class Gantt:
             waitingTotal = 10 - len(waiting)
             waitingFirst = floor(waitingTotal / 2)
             waitingSecond = waitingTotal - waitingFirst
-            if(index == 0):
+            if index == 0:
                 print("┌" + "─" * waitingFirst + waiting + "─" * waitingSecond + "┐")
             else:
                 print("│" + "─" * waitingFirst + waiting + "─" * waitingSecond + "│")
@@ -85,20 +100,26 @@ class Gantt:
             print("│" + " " * first + pid + " " * second + "│")
             for i in range(length):
                 print("│          │")
-            
-            if(index == len(self._ganttProcesses) - 1):
+
+            if index == len(self._ganttProcesses) - 1:
                 turnaround = str(process.turnaround())
                 turnaroundTotal = 10 - len(turnaround)
                 turnaroundFirst = floor(turnaroundTotal / 2)
                 turnaroundSecond = turnaroundTotal - turnaroundFirst
-                print("└" + "─" * turnaroundFirst + turnaround + "─" * turnaroundSecond+ "┘")
+                print(
+                    "└"
+                    + "─" * turnaroundFirst
+                    + turnaround
+                    + "─" * turnaroundSecond
+                    + "┘"
+                )
             prevLength = process.turnaround()
 
-        print('\nProcess\tArrival\tBurst\tPriority\tWaiting\t\tTurnaround')
+        print("\nProcess\tArrival\tBurst\tPriority\tWaiting\t\tTurnaround")
         for process in self._processes:
             print(process)
-        print('\nAverage Waiting Time: ' + str(self._avgWaiting) + 'ms')
-        print('Average Turnaround Time: ' + str(self._avgTurnaround) + 'ms')
+        print("\nAverage Waiting Time: " + str(self._avgWaiting) + "ms")
+        print("Average Turnaround Time: " + str(self._avgTurnaround) + "ms")
 
 
 def parse(filename: str) -> List[Process]:
@@ -144,14 +165,17 @@ def simple(processes: List[Process], key: Callable) -> Gantt:
 def fcfs(processes) -> Gantt:
     return simple(processes, lambda x: x.id())
 
+
 def priorityCompare(process1: Process, process2: Process):
     if process1.priority() == process2.priority():
         return process1.id() - process2.id()
-    
+
     return process1.priority() - process2.priority()
 
-def priority(processes) -> Gantt: 
+
+def priority(processes) -> Gantt:
     return simple(processes, cmp_to_key(priorityCompare))
+
 
 def sjfCompare(process1: Process, process2: Process):
     if process1.currBurst() == process2.currBurst():
@@ -172,15 +196,15 @@ def srptCompare(process1: Process, process2: Process):
 
 
 def srpt(processes) -> Gantt:
-    processes.sort(key=cmp_to_key(srptCompare))
+    newProcesses = deepcopy(processes).sort(key=cmp_to_key(srptCompare))
 
     sjf: List[Process] = []
-    gantt: List[Process] = [deepcopy(processes[0])]
+    gantt: List[Process] = [deepcopy(newProcesses[0])]
     finished: List[Process] = []
 
     currTime: int = 0
     currProcess: Process = None
-    while (len(sjf) != 0 or len(processes) != 0):
+    while len(sjf) != 0 or len(newProcesses) != 0:
         if len(sjf) > 0:
             currProcess = sjf[0]
             if sjf[0].currBurst() == 0:
@@ -188,19 +212,19 @@ def srpt(processes) -> Gantt:
                 finished.append(sjf[0])
                 sjf.pop(0)
 
-        while len(processes) > 0 and processes[0].arrival() == currTime:
-            sjf.append(processes.pop(0))
-        
+        while len(newProcesses) > 0 and processes[0].arrival() == currTime:
+            sjf.append(newProcesses.pop(0))
+
         if len(sjf) > 0:
             sjf.sort(key=cmp_to_key(sjfCompare))
             if currProcess != None and sjf[0] != currProcess:
                 gantt[-1].setTurnaround(currTime)
                 gantt.append(deepcopy(sjf[0]))
-            
+
             sjf[0].decCurrBurst()
-        
+
         currTime += 1
-    
+
     gantt[-1].setTurnaround(currTime - 1)
 
     avgWaiting: int = 0
@@ -211,46 +235,46 @@ def srpt(processes) -> Gantt:
         avgWaiting += waiting
         avgTurnaround += process.turnaround()
 
-    finished.sort(key = lambda x: x.id())
-    lenProcesses = len(finished)
+    finished.sort(key=lambda x: x.id())
+    lenProcesses: int = len(finished)
     avgWaiting /= lenProcesses
     avgTurnaround /= lenProcesses
 
     return Gantt(gantt, finished, avgWaiting, avgTurnaround)
 
+
 def roundRobin(processes) -> Gantt:
-    processes.sort(key = lambda x: x.id())
+    newProcesses = deepcopy(processes).sort(key=lambda x: x.id())
 
     finished: List[Process] = []
-    gantt: List[Process] = [deepcopy(processes[0])]
+    gantt: List[Process] = [deepcopy(newProcesses[0])]
     currTime: int = 4
     totalTime: int = 0
 
-    while(len(processes) > 0):
-        if processes[0].currBurst() == 0:
-            processes[0].setTurnaround(totalTime)
-            finished.append(processes[0])
-            processes.pop(0)
+    while len(newProcesses) > 0:
+        if newProcesses[0].currBurst() == 0:
+            newProcesses[0].setTurnaround(totalTime)
+            finished.append(newProcesses[0])
+            newProcesses.pop(0)
             currTime = 4
 
             gantt[-1].setTurnaround(totalTime)
 
-            if len(processes) > 0:
-                gantt.append(deepcopy(processes[0]))
-        
+            if len(newProcesses) > 0:
+                gantt.append(deepcopy(newProcesses[0]))
+
         if currTime == 0:
-            processes.append(processes.pop(0))
+            newProcesses.append(processes.pop(0))
             gantt[-1].setTurnaround(totalTime)
-            gantt.append(deepcopy(processes[0]))
+            gantt.append(deepcopy(newProcesses[0]))
             currTime = 4
 
-
-        if len(processes) > 0:
-            processes[0].decCurrBurst()
+        if len(newProcesses) > 0:
+            newProcesses[0].decCurrBurst()
 
         totalTime += 1
         currTime -= 1
-    
+
     avgWaiting: int = 0
     avgTurnaround: int = 0
     for process in finished:
@@ -259,18 +283,19 @@ def roundRobin(processes) -> Gantt:
         avgWaiting += waiting
         avgTurnaround += process.turnaround()
 
-    finished.sort(key = lambda x: x.id())
+    finished.sort(key=lambda x: x.id())
     lenProcesses = len(finished)
     avgWaiting /= lenProcesses
     avgTurnaround /= lenProcesses
-        
+
     return Gantt(gantt, finished, avgWaiting, avgTurnaround)
 
+
 if __name__ == "__main__":
-    inputFiles = ['process1.txt', 'process2.txt']
+    inputFiles = ["process1.txt", "process2.txt"]
     for file in inputFiles:
         processes = parse(file)
-        print("-"*5 + " " + file + " " + "-"*5)
+        print("-" * 5 + " " + file + " " + "-" * 5)
         print("------ FCFS -----")
         fcfs(processes).print()
         print("------ SJF -----")

@@ -1,7 +1,13 @@
+# Machine Problem 2
+# Po, Justin Andre
+# Valles, Oscar Vian
+# 
+# This machine problem was implement through pair programming
+
 from typing import List, Callable
 from functools import cmp_to_key
 from copy import deepcopy
-from math import ceil, floor
+from math import floor
 
 
 class Process:
@@ -66,35 +72,32 @@ class Process:
 class Gantt:
     def __init__(
         self,
-        ganttProcceses: List[Process],
+        ganttProceses: List[Process],
         processes: List[Process],
         avgWaiting: int,
         avgTurnaround: int,
     ):
         self._processes: List[Process] = processes
-        self._ganttProcesses = ganttProcceses
+        self._ganttProcesses = ganttProceses
         self._avgWaiting: int = avgWaiting
         self._avgTurnaround: int = avgTurnaround
 
     def print(self):
-        print("Gantt: ")
+        greatestLength = max(process.turnaround() - (0 if index == 0 else self._ganttProcesses[index-1].turnaround()) for index, process in enumerate(self._ganttProcesses))
+        totalLength = self._ganttProcesses[-1].turnaround()
+        divisionFactor = greatestLength/totalLength * 0.75
         prevLength = 0
-        totalLength: int = self._ganttProcesses[-1]
-        divisionFactor = totalLength.turnaround() / 40
         for index, process in enumerate(self._ganttProcesses):
-            length = ceil((process.turnaround() - prevLength) / divisionFactor)
+            length = floor((process.turnaround() - prevLength) * divisionFactor)
             pid = "p" + str(process.id())
             total = 10 - len(pid)
             first = floor(total / 2)
             second = total - first
-            waiting = str(prevLength)
-            waitingTotal = 10 - len(waiting)
-            waitingFirst = floor(waitingTotal / 2)
-            waitingSecond = waitingTotal - waitingFirst
             if index == 0:
-                print("┌" + "─" * waitingFirst + waiting + "─" * waitingSecond + "┐")
+                print("┌──────────┬── " + str(prevLength))
             else:
-                print("│" + "─" * waitingFirst + waiting + "─" * waitingSecond + "│")
+                print("├──────────┼── " + str(prevLength))
+
             for i in range(length):
                 print("│          │")
             print("│" + " " * first + pid + " " * second + "│")
@@ -103,16 +106,7 @@ class Gantt:
 
             if index == len(self._ganttProcesses) - 1:
                 turnaround = str(process.turnaround())
-                turnaroundTotal = 10 - len(turnaround)
-                turnaroundFirst = floor(turnaroundTotal / 2)
-                turnaroundSecond = turnaroundTotal - turnaroundFirst
-                print(
-                    "└"
-                    + "─" * turnaroundFirst
-                    + turnaround
-                    + "─" * turnaroundSecond
-                    + "┘"
-                )
+                print("└──────────┴── " + str(turnaround))
             prevLength = process.turnaround()
 
         print("\nProcess\tArrival\tBurst\tPriority\tWaiting\t\tTurnaround")
@@ -137,9 +131,10 @@ def parse(filename: str) -> List[Process]:
 
     return processes
 
-
+    
 def simple(processes: List[Process], key: Callable) -> Gantt:
-    newProcesses = deepcopy(processes).sort(key=key)
+    newProcesses = deepcopy(processes)
+    newProcesses.sort(key=key)
 
     currWaiting: int = 0
     avgWaiting: int = 0
@@ -155,11 +150,14 @@ def simple(processes: List[Process], key: Callable) -> Gantt:
 
         currWaiting += process.burst()
 
-    lenProcesses = len(processes)
+    lenProcesses = len(newProcesses)
     avgWaiting /= lenProcesses
     avgTurnaround /= lenProcesses
 
-    return Gantt(processes, processes, avgWaiting, avgTurnaround)
+    finished = deepcopy(newProcesses)
+    finished.sort(key = lambda x: x.id())
+
+    return Gantt(newProcesses, finished, avgWaiting, avgTurnaround)
 
 
 def fcfs(processes) -> Gantt:
@@ -196,7 +194,8 @@ def srptCompare(process1: Process, process2: Process):
 
 
 def srpt(processes) -> Gantt:
-    newProcesses = deepcopy(processes).sort(key=cmp_to_key(srptCompare))
+    newProcesses = deepcopy(processes)
+    newProcesses.sort(key=cmp_to_key(srptCompare))
 
     sjf: List[Process] = []
     gantt: List[Process] = [deepcopy(newProcesses[0])]
@@ -212,7 +211,7 @@ def srpt(processes) -> Gantt:
                 finished.append(sjf[0])
                 sjf.pop(0)
 
-        while len(newProcesses) > 0 and processes[0].arrival() == currTime:
+        while len(newProcesses) > 0 and newProcesses[0].arrival() == currTime:
             sjf.append(newProcesses.pop(0))
 
         if len(sjf) > 0:
@@ -244,7 +243,8 @@ def srpt(processes) -> Gantt:
 
 
 def roundRobin(processes) -> Gantt:
-    newProcesses = deepcopy(processes).sort(key=lambda x: x.id())
+    newProcesses = deepcopy(processes)
+    newProcesses.sort(key=lambda x: x.id())
 
     finished: List[Process] = []
     gantt: List[Process] = [deepcopy(newProcesses[0])]
@@ -264,7 +264,7 @@ def roundRobin(processes) -> Gantt:
                 gantt.append(deepcopy(newProcesses[0]))
 
         if currTime == 0:
-            newProcesses.append(processes.pop(0))
+            newProcesses.append(newProcesses.pop(0))
             gantt[-1].setTurnaround(totalTime)
             gantt.append(deepcopy(newProcesses[0]))
             currTime = 4
@@ -292,17 +292,18 @@ def roundRobin(processes) -> Gantt:
 
 
 if __name__ == "__main__":
+    # Add additional text files here to be processed
     inputFiles = ["process1.txt", "process2.txt"]
     for file in inputFiles:
         processes = parse(file)
         print("-" * 5 + " " + file + " " + "-" * 5)
-        print("------ FCFS -----")
+        print("\n------ FCFS -----")
         fcfs(processes).print()
-        print("------ SJF -----")
+        print("\n------ SJF -----")
         sjf(processes).print()
-        print("------ SRPT -----")
+        print("\n------ SRPT -----")
         srpt(processes).print()
-        print("------ PRIORITY -----")
+        print("\n------ PRIORITY -----")
         priority(processes).print()
-        print("------ ROUND ROBIN -----")
+        print("\n------ ROUND ROBIN -----")
         roundRobin(processes).print()
